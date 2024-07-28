@@ -1,0 +1,176 @@
+#include <stdio.h>
+#include <string.h>
+
+// Define constants
+#define MAX_STUDENTS 100
+#define MAX_NAME_LENGTH 50
+
+// Structure to hold student information
+typedef struct {
+    int id;
+    char name[MAX_NAME_LENGTH];
+    float marks[5];  // Assuming 5 subjects
+    float average;
+    char grade;
+} Student;
+
+// Function prototypes
+void addStudent(Student students[], int *studentCount);
+void editStudent(Student students[], int studentCount);
+void deleteStudent(Student students[], int *studentCount);
+void calculateGrade(Student *student);
+void displayStudents(const Student students[], int studentCount);
+
+// Main function
+int main() {
+    Student students[MAX_STUDENTS];
+    int studentCount = 0;
+    int choice;
+
+    do {
+        printf("\nStudent Management System\n");
+        printf("1. Add Student\n");
+        printf("2. Edit Student\n");
+        printf("3. Delete Student\n");
+        printf("4. Display Students\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addStudent(students, &studentCount);
+                break;
+            case 2:
+                editStudent(students, studentCount);
+                break;
+            case 3:
+                deleteStudent(students, &studentCount);
+                break;
+            case 4:
+                displayStudents(students, studentCount);
+                break;
+            case 5:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 5);
+
+    return 0;
+}
+
+// Function to add a student
+void addStudent(Student students[], int *studentCount) {
+    if (*studentCount >= MAX_STUDENTS) {
+        printf("Maximum student limit reached.\n");
+        return;
+    }
+
+    Student newStudent;
+    newStudent.id = *studentCount + 1;
+    printf("Enter student name: ");
+    scanf(" %[^\n]", newStudent.name); // Read string with spaces
+    printf("Enter marks for 5 subjects: ");
+    for (int i = 0; i < 5; i++) {
+        scanf("%f", &newStudent.marks[i]);
+    }
+
+    calculateGrade(&newStudent);
+    students[*studentCount] = newStudent;
+    (*studentCount)++;
+    printf("Student added successfully.\n");
+}
+
+// Function to edit a student
+void editStudent(Student students[], int studentCount) {
+    int id;
+    printf("Enter student ID to edit: ");
+    scanf("%d", &id);
+
+    if (id <= 0 || id > studentCount) {
+        printf("Invalid student ID.\n");
+        return;
+    }
+
+    Student *student = &students[id - 1];
+    printf("Editing student: %s\n", student->name);
+    printf("Enter new name (leave blank to keep current): ");
+    char newName[MAX_NAME_LENGTH];
+    scanf(" %[^\n]", newName);
+    if (strlen(newName) > 0) {
+        strcpy(student->name, newName);
+    }
+
+    printf("Enter new marks for 5 subjects (enter -1 to keep current): ");
+    for (int i = 0; i < 5; i++) {
+        float newMark;
+        scanf("%f", &newMark);
+        if (newMark >= 0) {
+            student->marks[i] = newMark;
+        }
+    }
+
+    calculateGrade(student);
+    printf("Student information updated.\n");
+}
+
+// Function to delete a student
+void deleteStudent(Student students[], int *studentCount) {
+    int id;
+    printf("Enter student ID to delete: ");
+    scanf("%d", &id);
+
+    if (id <= 0 || id > *studentCount) {
+        printf("Invalid student ID.\n");
+        return;
+    }
+
+    for (int i = id - 1; i < *studentCount - 1; i++) {
+        students[i] = students[i + 1];
+    }
+    (*studentCount)--;
+    printf("Student deleted successfully.\n");
+}
+
+// Function to calculate the grade of a student
+void calculateGrade(Student *student) {
+    float total = 0;
+    for (int i = 0; i < 5; i++) {
+        total += student->marks[i];
+    }
+    student->average = total / 5;
+
+    if (student->average >= 90) {
+        student->grade = 'A';
+    } else if (student->average >= 80) {
+        student->grade = 'B';
+    } else if (student->average >= 70) {
+        student->grade = 'C';
+    } else if (student->average >= 60) {
+        student->grade = 'D';
+    } else {
+        student->grade = 'F';
+    }
+}
+
+// Function to display student records
+void displayStudents(const Student students[], int studentCount) {
+    if (studentCount == 0) {
+        printf("No students registered.\n");
+        return;
+    }
+
+    for (int i = 0; i < studentCount; i++) {
+        printf("ID: %d\n", students[i].id);
+        printf("Name: %s\n", students[i].name);
+        printf("Marks: ");
+        for (int j = 0; j < 5; j++) {
+            printf("%.2f ", students[i].marks[j]);
+        }
+        printf("\nAverage: %.2f\n", students[i].average);
+        printf("Grade: %c\n", students[i].grade);
+        printf("-------------\n");
+    }
+}
